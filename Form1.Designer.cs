@@ -47,7 +47,6 @@
             buttonAddStudent = new Button();
             listViewStudents = new ListView();
             buttonAddRandom = new Button();
-            pictureBoxDeleteAll = new PictureBox();
             progressBar = new ProgressBar();
             labelRuningTime = new Label();
             labelAmountOfStudents = new Label();
@@ -60,7 +59,6 @@
             pictureBox7 = new PictureBox();
             pictureBox8 = new PictureBox();
             pictureBox9 = new PictureBox();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxDeleteAll).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
@@ -249,17 +247,6 @@
             buttonAddRandom.UseVisualStyleBackColor = false;
             buttonAddRandom.Click += buttonAddRandom_Click;
             // 
-            // pictureBoxDeleteAll
-            // 
-            pictureBoxDeleteAll.Image = Properties.Resources.icons8_trash_50__1_;
-            pictureBoxDeleteAll.Location = new Point(1149, 204);
-            pictureBoxDeleteAll.Name = "pictureBoxDeleteAll";
-            pictureBoxDeleteAll.Size = new Size(40, 41);
-            pictureBoxDeleteAll.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBoxDeleteAll.TabIndex = 18;
-            pictureBoxDeleteAll.TabStop = false;
-            pictureBoxDeleteAll.Click += pictureBoxDeleteAll_Click;
-            // 
             // progressBar
             // 
             progressBar.Location = new Point(562, 703);
@@ -398,7 +385,6 @@
             Controls.Add(labelAmountOfStudents);
             Controls.Add(labelRuningTime);
             Controls.Add(progressBar);
-            Controls.Add(pictureBoxDeleteAll);
             Controls.Add(buttonAddRandom);
             Controls.Add(listViewStudents);
             Controls.Add(buttonAddStudent);
@@ -420,7 +406,6 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             Text = "Students Manager";
-            ((System.ComponentModel.ISupportInitialize)pictureBoxDeleteAll).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
@@ -454,7 +439,6 @@
         public Button buttonAddStudent;
         public ListView listViewStudents;
         public Button buttonAddRandom;
-        public PictureBox pictureBoxDeleteAll;
         public ProgressBar progressBar;
         public Label labelRuningTime;
         public Label labelAmountOfStudents;

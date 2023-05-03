@@ -2,8 +2,10 @@
 
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Vml;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System.Drawing.Drawing2D;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace TDD_Project
 {
@@ -18,6 +21,7 @@ namespace TDD_Project
     {
 
         private System.Windows.Forms.ToolTip toolTip1;
+        List<Student> students = new List<Student>();
         public Form1()
         {
 
@@ -26,7 +30,8 @@ namespace TDD_Project
             this.toolTip1 = new System.Windows.Forms.ToolTip();
             this.toolTip1.IsBalloon = true; // set the IsBalloon property to true
             addcoloums();
-            SortStudents();
+
+
 
         }
 
@@ -51,15 +56,6 @@ namespace TDD_Project
 
 
 
-        public int UnitTestExmple(int num)
-        {
-
-            if (num == 1)
-            {
-                return 2;
-            }
-            else { return 1000; }
-        }
 
 
 
@@ -72,7 +68,7 @@ namespace TDD_Project
 
         public void buttonAddStudent_Click(object sender, EventArgs e)
         {
-            string path = (@"C:\Users\or656\source\repos\TDD Project\students.txt");
+
 
             // Regular expression to validate ID (9 digits)
             Regex idRegex = new Regex(@"^\d{9}$");
@@ -139,13 +135,10 @@ namespace TDD_Project
                 MessageBox.Show("Invalid email format. Please enter email only.");
                 return;
             }
-            // Create a new StreamWriter object to write to the text file
-            using (StreamWriter writer = new StreamWriter(path, true))
-            {
-                // Write the new student data as a comma-separated string
-                var studentData = string.Join(",", textBoxID.Text, textBoxFirstName.Text, textBoxLastName.Text, textBoxEmail.Text, textBoxGrade1.Text, textBoxGrade2.Text, textBoxGrade3.Text, textBoxGrade4.Text, textBoxGrade5.Text, "Avg");
-                writer.WriteLine(studentData);
-            }
+           
+            Student student = new Student(textBoxID.Text, textBoxFirstName.Text, textBoxLastName.Text, textBoxEmail.Text, textBoxGrade1.Text, textBoxGrade2.Text, textBoxGrade3.Text, textBoxGrade4.Text, textBoxGrade5.Text);
+            students.Add(student);
+
 
             // Clear the text boxes after adding the student
             textBoxID.Clear();
@@ -157,19 +150,15 @@ namespace TDD_Project
             textBoxGrade3.Clear();
             textBoxGrade4.Clear();
             textBoxGrade5.Clear();
-            SortStudents();
+        
 
+            SortAndUpdateUI();
 
         }
 
 
 
 
-
-        public void DeleteAllStudents(string path)
-        {
-            File.WriteAllText(path, "");
-        }
 
 
 
@@ -203,14 +192,29 @@ namespace TDD_Project
             return randomNumber == 100 ? "777" : randomNumber.ToString();
         }
 
-        public void pictureBoxDeleteAll_Click(object sender, EventArgs e)
+
+        //Runing Time 0(n^2)
+          void BubbleSort(List<Student> students) //take 960 sm
         {
-            string path = @"C:\Users\or656\source\repos\TDD Project\students.txt";
-            DeleteAllStudents(path);
-            SortStudents();
+            for (int i = 0; i < students.Count; i++)
+            {
+                for (int j = 0; j < students.Count - 1; j++)
+                {
+                    double avg1 = Convert.ToDouble(students[j].FiveGradesAndAvg?[5]);
+                    double avg2 = Convert.ToDouble(students[j + 1].FiveGradesAndAvg?[5]);
+                    if (avg1 < avg2)
+                    {
+                        Student temp = students[j];
+                        students[j] = students[j + 1];
+                        students[j + 1] = temp;
+                    }
+                }
+            }
         }
 
-        public static void MergeSort(List<string[]> students, int left, int right)
+
+
+        public static void MergeSort(List<Student> students, int left, int right)
         {
             if (left < right)
             {
@@ -221,26 +225,36 @@ namespace TDD_Project
             }
         }
 
-
-        //runing time of  O(n ∗ l o g n )
-        public static void Merge(List<string[]> students, int left, int mid, int right)
+        // runing time of  O(n ∗ l o g n ) 
+        public static void Merge(List<Student> students, int left, int mid, int right)
         {
+            if (students is null)
+            {
+                throw new ArgumentNullException(nameof(students));
+            }
+
+
             int i = left, j = mid + 1, k = 0;
-            string[][] temp = new string[right - left + 1][];
+            Student[] temp = new Student[right - left + 1];
 
             while (i <= mid && j <= right)
+                
             {
-                if (Convert.ToDouble(students[i][9]) >= Convert.ToDouble(students[j][9]))
+                if (students[i].FiveGradesAndAvg != null && students[i].FiveGradesAndAvg?[5] != null)
                 {
-                    temp[k] = students[i];
-                    i++;
+                    if (Convert.ToDouble(students[i].FiveGradesAndAvg?[5]) >= Convert.ToDouble(students[j].FiveGradesAndAvg?[5]))
+                    {
+                        temp[k] = students[i];
+                        i++;
+                    }
+                    else
+                    {
+                        temp[k] = students[j];
+                        j++;
+                    }
+                    k++;
                 }
-                else
-                {
-                    temp[k] = students[j];
-                    j++;
-                }
-                k++;
+                
             }
 
             while (i <= mid)
@@ -266,99 +280,73 @@ namespace TDD_Project
 
 
 
-        //// Sort the students by average grade using bubble sort of O(n^2)
-        //void BubbleSort(List<string[]> students)
-        //{
-        //    // Sort the students by average grade using bubble sort of O(n^2)
-        //    for (int i = 0; i < students.Count; i++)
-        //    {
-        //        for (int j = 0; j < students.Count - 1; j++)
-        //        {
-        //            double avg1 = Convert.ToDouble(students[j][9]);
-        //            double avg2 = Convert.ToDouble(students[j + 1][9]);
-        //            if (avg1 < avg2)
-        //            {
-        //                string[] temp = students[j];
-        //                students[j] = students[j + 1];
-        //                students[j + 1] = temp;
-        //            }
-        //        }
-        //    }
-        //}
 
 
 
-        // Read all lines from the file and split each line into student data
-        public List<string[]> ReadStudentDataFromFile(string filePath)
+
+        public void CalculateAverageGrades(List<Student> students)
         {
-            List<string[]> students = new List<string[]>();
-            using (StreamReader reader = new StreamReader(filePath))
+            foreach (Student student in students)
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    string[] studentData = line.Split(',');
-                    students.Add(studentData);
-                }
-            }
-            return students;
-        }
-
-        // Calculate the average grade of each student
-        public void CalculateAverageGrades(List<string[]> students)
-        {
-            for (int s = 0; s < students.Count; s++)
-            {
-                string[] studentData = students[s];
                 double sum = 0;
                 int count = 0;
-                double[] grades = new double[5];
-                int gradesCount = 0;
-                for (int i = 4; i <= 8; i++)
-                {
-                    if (studentData[i] == "777")
+                if (student.FiveGradesAndAvg!=null) {
+                    foreach (string grade in student.FiveGradesAndAvg)
                     {
-                        continue; // skip the grade of 777
-                    }
-                    if (double.TryParse(studentData[i], out double grade))
-                    {
-                        grades[gradesCount++] = grade;
-                        if (gradesCount == 5)
+                        if (grade == "777") // skip the grade of 777
                         {
-                            sum += grades[0] + grades[1] + grades[2] + grades[3] + grades[4];
-                            count += 5;
-                            gradesCount = 0;
+                            continue;
+                        }
+                        if (double.TryParse(grade, out double gradeValue))
+                        {
+                            sum += gradeValue;
+                            count++;
                         }
                     }
                 }
-                for (int i = 0; i < gradesCount; i++)
-                {
-                    sum += grades[i];
-                    count++;
-                }
+                
                 double avg = count > 0 ? sum / count : 0; // avoid division by zero
-                studentData[9] = avg.ToString();
+                student?.FiveGradesAndAvg?.Add(avg.ToString());
             }
         }
 
 
-        // Perform a merge sort on the list of student data
-        public void MergeSortStudentData(List<string[]> studentDataList)
-        {
-            MergeSort(studentDataList, 0, studentDataList.Count - 1);
-        }
 
-        // Update the UI with the sorted student data
-        public void UpdateListViewWithStudentData(List<string[]> students)
+       
+
+
+
+
+
+
+
+
+
+
+        public void UpdateListViewWithStudentData(List<Student> students)
         {
             var messageBuilder = new StringBuilder();
             var itemsToAdd = new List<ListViewItem>();
-            for (int i = 0; i < students.Count; i++)
+            foreach (var student in students)
             {
-                var studentData = students[i];
-                var avg = Convert.ToDouble(studentData[9]);
-                var item = new ListViewItem(studentData);
-                itemsToAdd.Add(item);
+
+                if (student!=null && student.ID!=null && student.FirstName!=null && student.LastName!=null && student.Email!=null && student.FiveGradesAndAvg!=null) {
+                    var studentData = new string[] {
+                student.ID,
+                student.FirstName,
+                student.LastName,
+                student.Email,
+                student.FiveGradesAndAvg[0],
+                student.FiveGradesAndAvg[1],
+                student.FiveGradesAndAvg[2],
+                 student.FiveGradesAndAvg[3],
+                 student.FiveGradesAndAvg[4],
+                 student.FiveGradesAndAvg[5]
+             };
+                    var item = new ListViewItem(studentData);
+                    itemsToAdd.Add(item);
+                }
+               
             }
 
             // Add the items to the list view on the UI thread
@@ -372,14 +360,24 @@ namespace TDD_Project
             }
         }
 
+
+
+
+
+
+
+
+
+
         // Sort the student data and update the UI
         public void SortAndUpdateUI()
         {
-            string path = @"C:\Users\or656\source\repos\TDD Project\students.txt";
-            List<string[]> students = ReadStudentDataFromFile(path);
+
+            progressBar.Visible = true;
             CalculateAverageGrades(students);
             DateTime startTime = DateTime.Now;
-            MergeSortStudentData(students);
+            //BubbleSort(students); //628 ms
+            MergeSort(students, 0, students.Count - 1); //30 ms
             DateTime endTime = DateTime.Now;
             TimeSpan runTime = endTime - startTime;
             labelRuningTime.Text = "Run time Of MergeSort: " + runTime.Milliseconds + " ms";
@@ -390,35 +388,23 @@ namespace TDD_Project
             progressBar.Visible = false;
         }
 
-        // Call this function to perform the entire process of sorting the student data and updating the UI
-        public void SortStudents()
+   
+
+
+        public  void buttonAddRandom_Click(object sender, EventArgs e)
         {
-            progressBar.Visible = true;
-
-            SortAndUpdateUI();
 
 
+          CreateRandomStudents();
 
 
 
         }
 
-
-        public void buttonAddRandom_Click(object sender, EventArgs e)
+        public void CreateRandomStudents()
         {
 
 
-            CreateRandomStudentsAsync();
-
-
-
-        }
-
-        public async Task CreateRandomStudentsAsync()
-        {
-
-
-            string path = @"C:\Users\or656\source\repos\TDD Project\students.txt";
             int numStudents = 10000;
             // Start the progress bar
             progressBar.Maximum = numStudents;
@@ -427,7 +413,7 @@ namespace TDD_Project
 
 
             Random rand = new Random();
-            StringBuilder sb = new StringBuilder();
+
 
             for (int i = 0; i < numStudents; i++)
             {
@@ -442,28 +428,30 @@ namespace TDD_Project
                 string grade3 = GenerateRandomGrade();
                 string grade4 = GenerateRandomGrade();
                 string grade5 = GenerateRandomGrade();
-                string[] studentData = { id, firstName, lastName, email, grade1, grade2, grade3, grade4, grade5, "" };
-                sb.AppendLine(string.Join(",", studentData));
 
-                progressBar.Invoke((MethodInvoker)delegate
-                {
-                    progressBar.Value = i + 1;
-                });
+                Student student = new Student(id, firstName, lastName, email, grade1, grade2, grade3, grade4, grade5);
+                students.Add(student);
+
+                progressBar.Value = i + 1;
+
+              
 
             }
 
-            using (StreamWriter writer = new StreamWriter(path, true))
-            {
-                await writer.WriteAsync(sb.ToString());
-            }
 
-            SortStudents();
+            SortAndUpdateUI();
+
 
             // Hide the progress bar
             progressBar.Visible = false;
 
 
 
+        }
+
+        public List<Student> GetStudents() {
+            return students;
+        
         }
 
         private void label6_Paint(object sender, PaintEventArgs e)
