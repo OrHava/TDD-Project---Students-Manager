@@ -66,6 +66,17 @@ namespace TDD_Project
         }
 
 
+        public bool IsGradeValid(string input)
+        {
+            int number;
+            if (int.TryParse(input, out number))
+            {
+                return (number >= 0 && number <= 100) || number == 777;
+            }
+            return false;
+        }
+
+
         public void buttonAddStudent_Click(object sender, EventArgs e)
         {
 
@@ -79,15 +90,14 @@ namespace TDD_Project
             // Regular expression to validate grades (numbers only)
             Regex gradeRegex = new Regex(@"^\d+$");
 
-            // Regular expression to validate grades (numbers only, between 0 and 100 or 777)
-            Regex gradeRegex2 = new Regex(@"^(100|[1-9]\d|\d)(\.\d+)?|777$");
+
 
             System.Windows.Forms.TextBox[] textBoxes = { textBoxGrade1, textBoxGrade2, textBoxGrade3, textBoxGrade4, textBoxGrade5 };
             bool allInputsValid = true;
 
             foreach (System.Windows.Forms.TextBox textBox in textBoxes)
             {
-                if (!int.TryParse(textBox.Text, out int grade) || grade < 0 || grade > 100)
+                if (!int.TryParse(textBox.Text, out int grade) || grade < 0 || grade > 100 || grade==777)
                 {
                     allInputsValid = false;
                     // If any input is invalid, break out of the loop early.
@@ -118,17 +128,13 @@ namespace TDD_Project
                 return;
             }
 
-            if (!gradeRegex2.IsMatch(textBoxGrade1.Text) || !gradeRegex2.IsMatch(textBoxGrade2.Text) || !gradeRegex2.IsMatch(textBoxGrade3.Text) || !gradeRegex2.IsMatch(textBoxGrade4.Text) || !gradeRegex2.IsMatch(textBoxGrade5.Text))
+            if (!IsGradeValid(textBoxGrade1.Text) || !IsGradeValid(textBoxGrade2.Text) || !IsGradeValid(textBoxGrade3.Text) || !IsGradeValid(textBoxGrade4.Text) || !IsGradeValid(textBoxGrade5.Text))
             {
                 MessageBox.Show("Invalid grade format. Grades need to be from 0 to 100, or 777.");
                 return;
             }
 
-            if (!allInputsValid)
-            {
-                MessageBox.Show("Invalid grade format. Grades need to be from 0 to 100, or 777.");
-                return;
-            }
+           
 
             if (IsValidEmail(textBoxEmail.Text) == false)
             {
